@@ -28,3 +28,21 @@ central de la tesis, no eliminar ni renombrar sin avisar.
   Ciudadano, B01-B09 para Bombero) en los comentarios de cada archivo.
 - No inventar campos o pantallas que no estén en este documento — preguntar
   primero si algo no está claro.
+
+  ## Convención de sesiones de trabajo
+Cada bloque grande de trabajo se maneja en su propia sesión de Claude Code,
+nombrada con /rename:
+- backend-postgres-auth
+- apps-conectar-backend
+- firebase-fcm
+- google-maps-sdk
+- offline-sqlite
+
+Al cerrar un bloque de trabajo importante, actualizar esta sección con un
+resumen de decisiones tomadas antes de pasar al siguiente bloque.
+
+## Estado de la base de datos
+Base de datos `bomberos_chiquimulilla` migrada y verificada (6 tablas:
+rol, usuario, tipo_emergencia, unidad, emergencia, asignacion). Backend
+conectado vía pool.js (pg). Endpoint GET /db-health confirmado funcionando.
+Próximo paso: autenticación JWT y endpoints CRUD de emergencias.
