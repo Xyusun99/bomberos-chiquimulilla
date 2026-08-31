@@ -52,4 +52,54 @@ async function obtenerPorCodigo(codigo) {
   return result.rows[0] || null;
 }
 
-module.exports = { obtenerTipoEmergenciaPorId, insertarEmergenciaConCodigo, obtenerPorCodigo };
+async function findById(id_emergencia) {
+  const result = await pool.query('SELECT * FROM emergencia WHERE id_emergencia = $1', [id_emergencia]);
+  return result.rows[0] || null;
+}
+
+// Lista blanca fija de columnas de timestamp válidas para el UPDATE dinámico
+// de abajo. Es el único lugar del repository donde se interpola un nombre de
+// columna en el SQL, así que se revalida aquí (además de en el service) como
+// defensa en profundidad contra inyección vía nombre de columna.
+const COLUMNAS_TIMESTAMP_VALIDAS = [
+  'fecha_en_camino',
+  'fecha_en_sitio',
+  'fecha_atendiendo',
+  'fecha_finalizada',
+];
+
+async function actualizarEstado(id_emergencia, nuevoEstado, columnaTimestamp) {
+  if (!COLUMNAS_TIMESTAMP_VALIDAS.includes(columnaTimestamp)) {
+    throw new Error(`columna de timestamp no permitida: ${columnaTimestamp}`);
+  }
+
+  const result = await pool.query(
+    `UPDATE emergencia
+       SET estado = $1, ${columnaTimestamp} = NOW()
+       WHERE id_emergencia = $2
+       RETURNING id_emergencia, codigo, estado, fecha_en_camino, fecha_en_sitio,
+                 fecha_atendiendo, fecha_finalizada, tiempo_respuesta`,
+    [nuevoEstado, id_emergencia]
+  );
+  return result.rows[0] || null;
+}
+
+async function cancelarEmergencia(id_emergencia) {
+  const result = await pool.query(
+    `UPDATE emergencia
+       SET estado = 'cancelada'
+       WHERE id_emergencia = $1
+       RETURNING id_emergencia, codigo, estado`,
+    [id_emergencia]
+  );
+  return result.rows[0] || null;
+}
+
+module.exports = {
+  obtenerTipoEmergenciaPorId,
+  insertarEmergenciaConCodigo,
+  obtenerPorCodigo,
+  findById,
+  actualizarEstado,
+  cancelarEmergencia,
+};

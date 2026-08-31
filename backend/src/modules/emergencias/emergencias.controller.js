@@ -33,4 +33,16 @@ const obtenerPorCodigo = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { crear, obtenerPorCodigo };
+const cambiarEstado = asyncHandler(async (req, res) => {
+  const id_emergencia = Number(req.params.id);
+  const emergencia = await service.cambiarEstado(id_emergencia, req.body.nuevo_estado);
+  res.status(200).json(emergencia);
+});
+
+const cancelar = asyncHandler(async (req, res) => {
+  const id_emergencia = Number(req.params.id);
+  const emergencia = await service.cancelar(id_emergencia, req.user.id_usuario);
+  res.status(200).json(emergencia);
+});
+
+module.exports = { crear, obtenerPorCodigo, cambiarEstado, cancelar };

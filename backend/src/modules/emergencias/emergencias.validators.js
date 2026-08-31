@@ -10,4 +10,8 @@ const crearEmergenciaSchema = z.object({
   foto_url: z.string().optional(),
 });
 
-module.exports = { crearEmergenciaSchema };
+const cambiarEstadoSchema = z.object({
+  nuevo_estado: z.enum(['en_camino', 'en_sitio', 'atendiendo', 'finalizada']),
+});
+
+module.exports = { crearEmergenciaSchema, cambiarEstadoSchema };
